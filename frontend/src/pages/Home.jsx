@@ -7,7 +7,7 @@ import NewsletterBox from '../components/NewsletterBox'
 
 
 
-const home = () => {
+const Home = () => {
   return (
     <div>
       <Hero />
@@ -19,4 +19,4 @@ const home = () => {
   )
 }
 
-export default home
+export default Home

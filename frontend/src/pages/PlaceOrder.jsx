@@ -5,7 +5,7 @@ import CartTotal from '../components/CartTotal'
 import { ShopContext } from '../context/ShopContext'
 import { toast } from 'react-toastify'
 import axios from 'axios'
-import { currency } from '../../../admin/src/App'
+const currency='$'
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState('cod');
