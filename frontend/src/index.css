@@ -1,26 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
-a.active hr{
-    display: block;
+:root {
+  --neon-purple: #6C5CE7;
+  --neon-teal: #00B894;
+  --neon-dark: #0f0f0f;
+  --neon-charcoal: #1a1a2e;
+  --neon-mid: #2d2d44;
+  --neon-light: #f8f7ff;
+  --neon-muted: #a0a0b0;
+  --gradient: linear-gradient(135deg, #6C5CE7 0%, #00B894 100%);
 }
 
-*{
-    font-family: Outfit;
+* {
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
 }
 
-.prata-regular {
-  font-family: "Prata", serif;
-  font-weight: 400;
-  font-style: normal;
+.font-display {
+  font-family: 'Cormorant Garamond', serif;
 }
 
-::-webkit-scrollbar{
-    display: none;
+::-webkit-scrollbar {
+  width: 4px;
 }
-@media (max-width:640px) {
-    a.active{
-        background-color: black;
-        color: white;
-    }
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
 }
+::-webkit-scrollbar-thumb {
+  background: var(--neon-purple);
+  border-radius: 2px;
+}
+
+a.active hr {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  a.active {
+    background: var(--gradient);
+    color: white;
+  }
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-neon {
+  background: var(--gradient);
+  color: white;
+  border: none;
+  letter-spacing: 0.05em;
+  transition: opacity 0.3s, transform 0.2s;
+}
+.btn-neon:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-outline-neon {
+  background: transparent;
+  border: 1.5px solid var(--neon-purple);
+  color: var(--neon-purple);
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+.btn-outline-neon:hover {
+  background: var(--gradient);
+  border-color: transparent;
+  color: white;
+}
+
+::-webkit-scrollbar { display: none; }
