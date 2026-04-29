@@ -1,118 +1,106 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
-import { assets } from '../assets/assets';
-import RelatedProducts from '../components/RelatedProducts';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-const Product = () => {
-  const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
-  const [productData, setProductData] = useState(false);
-  const [image, setImage] = useState('');
-  const [size, setSize] = useState('');
+const NeonLogo = () => (
+  <svg width="80" height="28" viewBox="0 0 110 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="lng" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#6C5CE7"/>
+        <stop offset="100%" stopColor="#00B894"/>
+      </linearGradient>
+    </defs>
+    <rect width="32" height="32" rx="8" fill="url(#lng)" y="2"/>
+    <line x1="9" y1="10" x2="9" y2="26" stroke="white" strokeWidth="3.5" strokeLinecap="round"/>
+    <line x1="23" y1="10" x2="23" y2="26" stroke="white" strokeWidth="3.5" strokeLinecap="round"/>
+    <line x1="9" y1="10" x2="23" y2="26" stroke="white" strokeWidth="2.8" strokeLinecap="round"/>
+    <text x="40" y="24" fontFamily="'Cormorant Garamond', serif" fontSize="22" fontWeight="500" fill="url(#lng)">Neon</text>
+  </svg>
+);
 
-  const fetchProductData = async () => {
-    const item = products.find((item) => item._id === productId);
-    if (item) {
-      setProductData(item);
-      setImage(item.image[0]);
+const Login = () => {
+  const [currentState, setCurrentState] = useState('Login');
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
+  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      if (currentState === 'Sign Up') {
+        const response = await axios.post(backendUrl + '/api/user/register', { name, email, password })
+        if (response.data.success) {
+          setToken(response.data.token)
+          localStorage.setItem('token', response.data.token)
+        } else {
+          toast.error(response.data.message)
+        }
+      } else {
+        const response = await axios.post(backendUrl + '/api/user/login', { email, password })
+        if (response.data.success) {
+          setToken(response.data.token)
+          localStorage.setItem('token', response.data.token)
+        } else {
+          toast.error(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error(error.message)
     }
   }
 
   useEffect(() => {
-    fetchProductData();
-  }, [productId, products])
+    if (token) navigate('/')
+  }, [token])
 
-  return productData ? (
-    <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>
-      <div className='flex gap-12 flex-col sm:flex-row'>
+  const inputClass = 'w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-purple-400 transition-colors placeholder-gray-400'
 
-        {/* Images */}
-        <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row'>
-          <div className='flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full gap-2'>
-            {productData.image.map((item, index) => (
-              <img
-                onClick={() => setImage(item)}
-                src={item}
-                key={index}
-                className={`w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer rounded-lg border-2 transition-all ${image === item ? 'border-purple-400' : 'border-transparent'}`}
-                alt=""
-              />
-            ))}
-          </div>
-          <div className='w-full sm:w-[80%]'>
-            <img className='w-full h-auto rounded-2xl' src={image} alt={productData.name} />
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className='flex-1'>
-          <h1 className='font-semibold text-2xl mt-2 text-gray-900'>{productData.name}</h1>
-
-          <div className='flex items-center gap-1 mt-2'>
-            {[...Array(4)].map((_, i) => <img key={i} src={assets.star_icon} alt="" className="w-3.5" />)}
-            <img src={assets.star_dull_icon} alt="" className="w-3.5" />
-            <p className='pl-2 text-sm text-gray-400'>(122 reviews)</p>
-          </div>
-
-          <p className='mt-5 text-3xl font-semibold' style={{ background: 'linear-gradient(135deg,#6C5CE7,#00B894)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            {currency}{productData.price}
-          </p>
-
-          <p className='mt-4 text-gray-500 md:w-4/5 leading-relaxed text-sm'>{productData.description}</p>
-
-          <div className='flex flex-col gap-3 my-8'>
-            <p className='text-sm font-medium text-gray-700 tracking-wide'>Select Size</p>
-            <div className='flex gap-2 flex-wrap'>
-              {productData.sizes.map((item, index) => (
-                <button
-                  onClick={() => setSize(item)}
-                  key={index}
-                  className={`border py-2 px-4 text-sm rounded-lg transition-all duration-200 ${item === size ? 'border-purple-500 bg-purple-50 text-purple-700 font-medium' : 'border-gray-200 hover:border-purple-300 text-gray-600'}`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={() => addToCart(productData._id, size)}
-            className='text-white px-10 py-3 text-sm font-medium tracking-widest rounded-full active:opacity-80 transition-all'
-            style={{ background: 'linear-gradient(135deg,#6C5CE7,#00B894)' }}
-          >
-            ADD TO CART
-          </button>
-
-          <hr className='mt-8 sm:w-4/5 border-gray-100' />
-
-          <div className='text-sm text-gray-400 mt-5 flex flex-col gap-2'>
-            <p>✓ 100% authentic product, every time.</p>
-            <p>✓ Cash on delivery available.</p>
-            <p>✓ Easy returns & exchanges within 7 days.</p>
-          </div>
-        </div>
+  return (
+    <div className='flex flex-col items-center w-[90%] sm:max-w-md m-auto mt-14 gap-5'>
+      <div className='mb-2'>
+        <NeonLogo />
       </div>
 
-      {/* Description & Reviews */}
-      <div className='mt-20'>
-        <div className='flex'>
-          <b className='border-b-2 border-purple-500 px-5 py-3 text-sm text-gray-800'>Description</b>
-          <p className='border-b border-gray-100 px-5 py-3 text-sm text-gray-400'>Reviews (122)</p>
-        </div>
-        <div className='flex flex-col gap-4 border border-gray-100 rounded-b-2xl px-6 py-6 text-sm text-gray-400 leading-relaxed'>
-          <p>
-            Every Neon piece is crafted with intention. We work directly with skilled manufacturers to ensure each garment meets our standards for material quality, construction, and comfort. What you see is what you get — no airbrushing, no surprises.
-          </p>
-          <p>
-            This item features premium fabric composition, reinforced stitching at stress points, and a fit designed for real bodies. Whether you're dressing up or dressing down, it's built to move with you.
-          </p>
-        </div>
+      <div className='text-center'>
+        <h2 className='text-2xl font-semibold text-gray-800'>{currentState === 'Login' ? 'Welcome back' : 'Create your account'}</h2>
+        <p className='text-sm text-gray-400 mt-1'>{currentState === 'Login' ? 'Sign in to your Neon account' : 'Join Neon — fashion redefined'}</p>
       </div>
 
-      <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
+      <form onSubmit={onSubmitHandler} className='w-full flex flex-col gap-4 mt-2'>
+        {currentState !== 'Login' && (
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            type="text"
+            className={inputClass}
+            placeholder='Full name'
+            required
+          />
+        )}
+        <input onChange={(e) => setEmail(e.target.value)} value={email} type="email" className={inputClass} placeholder='Email address' required />
+        <input onChange={(e) => setPassword(e.target.value)} value={password} type="password" className={inputClass} placeholder='Password' required />
+
+        <div className='flex justify-between text-xs text-gray-400 mt-1'>
+          <p className='cursor-pointer hover:text-purple-500 transition-colors'>Forgot password?</p>
+          {currentState === 'Login'
+            ? <p onClick={() => setCurrentState('Sign Up')} className='cursor-pointer hover:text-purple-500 transition-colors'>Create account</p>
+            : <p onClick={() => setCurrentState('Login')} className='cursor-pointer hover:text-purple-500 transition-colors'>Already have an account?</p>
+          }
+        </div>
+
+        <button
+          type='submit'
+          className='w-full text-white py-3 rounded-xl text-sm font-medium tracking-widest mt-2 transition-opacity hover:opacity-90'
+          style={{ background: 'linear-gradient(135deg,#6C5CE7,#00B894)' }}
+        >
+          {currentState === 'Login' ? 'SIGN IN' : 'CREATE ACCOUNT'}
+        </button>
+      </form>
     </div>
-  ) : <div className='opacity-0'></div>
+  )
 }
 
-export default Product
+export default Login
